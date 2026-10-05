@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Анкета iRidi для выставки
 
-## Getting Started
+Бумажная «Анкета для выставок», перенесённая в веб-приложение для iPad. Сотрудник на стенде
+заполняет анкету за посетителя, все записи падают в базу и выгружаются в Excel или Google Таблицу.
 
-First, run the development server:
+- `/` — анкета (9 вопросов как на бумаге), крупные элементы под палец
+- `/admin?key=…` — все контакты таблицей, кнопка «Скачать Excel», формула для Google Таблиц
+
+## Что сделано под выставку
+
+- **Не теряет анкеты без интернета.** Анкета сначала сохраняется на iPad (localStorage), потом
+  отправляется на сервер; если Wi-Fi пропал, очередь досылается сама каждые 15 секунд и при
+  возвращении сети. В шапке виден счётчик «Ждут отправки».
+- **Без дублей.** id генерируется на iPad, повторная отправка того же id в базе игнорируется.
+- **Страница открывается офлайн.** Service worker кэширует форму; на iPad её можно добавить
+  на экран «Домой», и она запускается как приложение.
+- **Google Таблица без настройки API.** `=IMPORTDATA("…/api/export?format=csv&key=…")` в ячейке A1.
+
+## Стек
+
+Next.js 16 · Postgres (Neon) · ExcelJS · Vercel
+
+## Запуск
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+psql "$DATABASE_URL" -f db/schema.sql
+DATABASE_URL=... ADMIN_KEY=... pnpm dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
