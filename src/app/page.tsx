@@ -79,7 +79,7 @@ export default function Page() {
       <label key={o} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg px-2 active:bg-neutral-100">
         <input type="checkbox" className="size-7 shrink-0 accent-[#e30613]"
           checked={d[k].includes(o)} onChange={() => toggle(k, o)} />
-        <span className="text-lg">{t[k][i]}</span>
+        <span className="min-w-0 text-lg hyphens-auto [overflow-wrap:anywhere]">{t[k][i]}</span>
       </label>
     ));
 
@@ -87,7 +87,7 @@ export default function Page() {
   const h = "mb-3 mt-8 text-2xl font-bold";
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-5 pb-16 pt-6">
+    <main lang={lang} className="mx-auto w-full max-w-3xl px-5 pb-16 pt-6">
       <header className="flex items-center justify-between gap-3">
         <h1 className="text-3xl font-black">{t.title}</h1>
         <span data-testid="sync" className={`shrink-0 rounded-full px-3 py-1 text-sm ${pending ? "bg-amber-100 text-amber-900" : "bg-green-100 text-green-900"}`}>
@@ -125,7 +125,7 @@ export default function Page() {
         <div className="grid sm:grid-cols-2">{box("interests", INTERESTS)}</div>
 
         <h2 className={h}>5. {t.q[4]}</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3">{box("directions", DIRECTIONS)}</div>
+        <div className="grid sm:grid-cols-3">{box("directions", DIRECTIONS)}</div>
 
         <h2 className={h}>6. {t.q[5]}</h2>
         <div className="grid">{box("intents", INTENTS)}</div>
