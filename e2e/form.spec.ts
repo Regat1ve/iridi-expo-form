@@ -29,7 +29,30 @@ test("anketa goes to the database and shows in Excel export", async ({ page, req
   expect(xlsx.headers()["content-type"]).toContain("spreadsheetml");
 });
 
-test("no internet: anketa is kept on the device, survives reload and syncs later", async ({ page, context, request }) => {
+test.describe("server unreachable", () => {
+  // page.route can't see requests that pass through a service worker in WebKit; this test is about the queue, not the SW.
+  test.use({ serviceWorkers: "block" });
+  test("anketa is kept on the device, survives reload and syncs later", async ({ page, request }) => {
+    const name = uniq("Сервер недоступен");
+    await page.route("**/api/leads", (r) => r.abort());
+    await page.goto("/");
+    await fill(page, name);
+    await expect(page.getByTestId("sync")).toHaveText("Ждут отправки: 1");
+
+    await page.reload(); // iPad restarted / tab reopened while the server is still unreachable
+    await expect(page.getByTestId("sync")).toHaveText("Ждут отправки: 1");
+    expect(await csv(request)).not.toContain(name);
+
+    await page.unroute("**/api/leads");
+    await expect(page.getByTestId("sync")).toHaveText("Всё отправлено", { timeout: 20_000 });
+    expect(await csv(request)).toContain(name);
+  });
+});
+
+// Playwright's offline mode in WebKit blocks requests before the service worker sees them,
+// so the "page opens with no Wi-Fi" part can only be automated in Chromium.
+test("no internet: page opens from cache, anketa waits and syncs", async ({ page, context, request, browserName }) => {
+  test.skip(browserName === "webkit", "Playwright WebKit offline mode bypasses service workers");
   const name = uniq("Офлайн");
   await page.goto("/");
   await page.evaluate(() => navigator.serviceWorker.ready);

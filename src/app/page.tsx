@@ -25,6 +25,8 @@ export default function Page() {
   const [pending, setPending] = useState(0);
   const [msg, setMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [lang, setLang] = useState<Lang>("ru");
+  // The page is prerendered: until JS runs, typing would be wiped and Save would bypass the queue.
+  const [ready, setReady] = useState(false);
   const t = DICT[lang];
 
   const flush = useCallback(async () => {
@@ -51,6 +53,7 @@ export default function Page() {
     try { saved = localStorage.getItem(LANG); } catch {}
     const guess = saved ?? navigator.language.slice(0, 2);
     setLang(LANGS.find((l) => l === guess) ?? "ru");
+    setReady(true);
     flush();
     navigator.serviceWorker?.register("/sw.js");
     const timer = setInterval(flush, 15000);
@@ -111,6 +114,7 @@ export default function Page() {
       )}
 
       <form onSubmit={submit} onChange={() => setMsg(null)}>
+        <fieldset disabled={!ready} className="disabled:opacity-60">
         <h2 className={h}>1. {t.q[0]} *</h2>
         <input className={input} required aria-label={t.q[0]} value={d.name} onChange={(e) => set("name", e.target.value)} autoComplete="off" />
 
@@ -142,6 +146,7 @@ export default function Page() {
         <button className="mt-8 w-full rounded-xl bg-[#e30613] py-5 text-2xl font-bold text-white active:opacity-80">
           {t.submit}
         </button>
+        </fieldset>
       </form>
     </main>
   );
