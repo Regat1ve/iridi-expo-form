@@ -1,4 +1,4 @@
-import type { Lead } from "./form";
+import { isHot, type Lead } from "./form";
 
 const j = (a: string[]) => a.join("; ");
 const date = (iso: string) =>
@@ -6,6 +6,7 @@ const date = (iso: string) =>
 
 // One definition feeds the admin table, Excel and CSV, so they never drift apart.
 export const COLUMNS: [string, (l: Lead) => string][] = [
+  ["Горячий", (l) => (isHot(l) ? "да" : "")],
   ["Дата (МСК)", (l) => date(l.filledAt)],
   ["Имя", (l) => l.name],
   ["Компания", (l) => l.company],
@@ -16,4 +17,5 @@ export const COLUMNS: [string, (l: Lead) => string][] = [
   ["Телефон", (l) => l.phone],
   ["Email", (l) => l.email],
   ["Выслать/сделать после выставки", (l) => l.followup],
+  ["Язык анкеты", (l) => l.lang.toUpperCase()],
 ];

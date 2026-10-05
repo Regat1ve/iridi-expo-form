@@ -1,32 +1,16 @@
-// Questions mirror the paper form "Анкета для выставок" one-to-one.
-export const ROLES = [
-  "интегратор",
-  "дизайнер, архитектор",
-  "электрик, слаботочник",
-  "застройщик, девелопер",
-  "проектировщик",
-  "частное лицо, смотрю для себя",
-  "заказчик от юр. лица",
-  "инженер по эксплуатации",
-  "продавец УД, ЭУИ, инженерки",
-];
+import { DICT } from "./i18n";
 
-export const INTERESTS = [
-  "материалы о продуктах",
-  "ищу себе инсталлятора",
-  "обучающие курсы",
-  "ищу вендора как инсталлятор",
-  "хочу стать дистрибьютором",
-  "договориться о презентации pre-sale менеджера",
-];
+// Questions mirror the paper form "Анкета для выставок" one-to-one; Russian values are what the DB stores.
+export const { roles: ROLES, interests: INTERESTS, directions: DIRECTIONS, intents: INTENTS } = DICT.ru;
 
-export const DIRECTIONS = ["SmartHome", "Коммерция, AV", "МКД", "Отели", "BMS"];
+export const LANGS = ["ru", "en", "de", "zh"] as const;
+export type Lang = (typeof LANGS)[number];
 
-export const INTENTS = [
-  "Нужно КП, презентация, встреча или партнерство",
-  "Будущие планы",
-  "Смотрю, что есть на рынке",
-];
+// "Already wants something" — sales calls these first. Mere curiosity is not hot.
+// INTERESTS[4] = "хочу стать дистрибьютором", [5] = "договориться о презентации pre-sale менеджера".
+const HOT = [INTENTS[0], INTERESTS[4], INTERESTS[5]];
+export const isHot = (l: Pick<Lead, "interests" | "intents">) =>
+  [...l.interests, ...l.intents].some((v) => HOT.includes(v));
 
 export type Lead = {
   id: string;
@@ -41,6 +25,7 @@ export type Lead = {
   phone: string;
   email: string;
   followup: string;
+  lang: Lang;
 };
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -66,6 +51,7 @@ export function parseLead(body: unknown): Lead | string {
     phone: str(b.phone, 50),
     email: str(b.email, 200),
     followup: str(b.followup, 2000),
+    lang: LANGS.find((x) => x === b.lang) ?? "ru",
   };
   if (!lead.name) return "Укажите имя";
   if (!lead.phone && !lead.email) return "Укажите телефон или email";

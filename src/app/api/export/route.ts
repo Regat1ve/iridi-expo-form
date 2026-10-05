@@ -1,5 +1,6 @@
 import ExcelJS from "exceljs";
 import { isAdmin, listLeads } from "@/lib/db";
+import { isHot } from "@/lib/form";
 import { COLUMNS } from "@/lib/columns";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +10,8 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   if (!isAdmin(url.searchParams.get("key"))) return new Response("Forbidden", { status: 403 });
 
-  const rows = (await listLeads()).map((l) => COLUMNS.map(([, f]) => f(l)));
+  const leads = await listLeads();
+  const rows = leads.map((l) => COLUMNS.map(([, f]) => f(l)));
   const header = COLUMNS.map(([h]) => h);
 
   if (url.searchParams.get("format") === "csv") {
@@ -21,7 +23,10 @@ export async function GET(req: Request) {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet("Контакты", { views: [{ state: "frozen", ySplit: 1 }] });
   ws.addRow(header).font = { bold: true };
-  ws.addRows(rows);
+  leads.forEach((l, i) => {
+    const row = ws.addRow(rows[i]);
+    if (isHot(l)) row.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFE0E0" } };
+  });
   ws.columns.forEach((c) => (c.width = 28));
   ws.autoFilter = { from: "A1", to: { row: 1, column: header.length } };
 
