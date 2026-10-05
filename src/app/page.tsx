@@ -88,9 +88,9 @@ export default function Page() {
 
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pb-16 pt-6">
-      <header className="flex items-center justify-between">
+      <header className="flex items-center justify-between gap-3">
         <h1 className="text-3xl font-black">{t.title}</h1>
-        <span data-testid="sync" className={`rounded-full px-3 py-1 text-sm ${pending ? "bg-amber-100 text-amber-900" : "bg-green-100 text-green-900"}`}>
+        <span data-testid="sync" className={`shrink-0 rounded-full px-3 py-1 text-sm ${pending ? "bg-amber-100 text-amber-900" : "bg-green-100 text-green-900"}`}>
           {pending ? `${t.pending}: ${pending}` : t.allSent}
         </span>
       </header>

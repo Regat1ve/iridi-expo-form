@@ -56,6 +56,13 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
             </tr>
           </thead>
           <tbody>
+            {!leads.length && (
+              <tr>
+                <td colSpan={COLUMNS.length} className="px-3 py-8 text-neutral-500">
+                  {hot ? "Горячих анкет пока нет" : "Анкет пока нет"}
+                </td>
+              </tr>
+            )}
             {leads.map((l) => (
               <tr key={l.id} data-hot={isHot(l) || undefined} className="border-t border-neutral-200 align-top data-hot:bg-red-50">
                 {COLUMNS.map(([h, f]) => (
